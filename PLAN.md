@@ -23,15 +23,16 @@ Exit: 문서가 일관되고 secret/로컬 생성물은 Git에서 제외되며 �
 
 ## PHASE 1 — Project foundation
 
-- [ ] Python 3.12+ `src/` layout과 최소 `pyproject.toml`
-- [ ] FastAPI app factory와 health endpoint
-- [ ] Pydantic settings, fail-fast validation, secret redaction
-- [ ] PostgreSQL/SQLAlchemy/Alembic baseline
-- [ ] pytest fixture와 deterministic clock
-- [ ] Ruff lint/format 및 canonical 명령 구성
-- [ ] 최소 Dockerfile/Compose와 README 실행 절차
+- [x] Python 3.12+ `src/` layout과 최소 `pyproject.toml`
+- [x] FastAPI app factory와 health endpoint
+- [x] Pydantic settings, fail-fast validation, secret redaction
+- [x] PostgreSQL/SQLAlchemy/Alembic baseline
+- [x] pytest fixture와 deterministic clock
+- [x] Ruff lint/format 및 canonical 명령 구성
+- [x] 최소 Dockerfile/Compose와 README 실행 절차
+- [x] Docker daemon E2E: build, PostgreSQL 기동, `alembic upgrade head`, `/health` 확인
 
-Exit: fresh checkout에서 app/DB가 기동되고 health, migration, test, lint가 통과한다.
+Exit: fresh checkout에서 app/DB가 기동되고 health, migration, test, lint가 통과한다. (완료)
 
 ## PHASE 2 — Weather
 

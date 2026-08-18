@@ -2,7 +2,7 @@
 
 서울의 다음 날 날씨에 맞는 20대 남성 데일리 코디를 하루 하나 제작해, 검수 후 Instagram fashion magazine 형식으로 게시하는 modular monolith 프로젝트다.
 
-현재 상태는 **PHASE 0 완료 — 저장소·Codex 운영 기반만 구성**이다. 실행 가능한 애플리케이션과 runtime dependency는 아직 없다.
+현재 상태는 **PHASE 1 — Project Foundation 완료**다. Weather, outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
 
 ## Project documents
 
@@ -32,4 +32,31 @@ repo-scoped `.codex/config.toml`은 현재 추가하지 않았다. 기본 sandbo
 
 구현 Phase에서는 `.env.example`을 복사해 로컬 `.env`를 만들고 실제 credential은 로컬 또는 배포 secret store에만 입력한다. `.env`와 로컬 생성물은 Git에서 제외된다.
 
-현재 실행/test/lint 명령은 없다. 다음 작업인 **PHASE 1 — Project foundation**에서 `python -m pytest`, Ruff lint/format, FastAPI/DB 실행 절차를 실제 dependency와 함께 구성한다.
+## Local development
+
+Python 3.12+와 Docker Compose가 필요하다.
+
+```powershell
+Copy-Item .env.example .env
+# .env의 POSTGRES_PASSWORD를 로컬 전용 값으로 설정
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+docker compose up --build -d
+docker compose exec app alembic upgrade head
+```
+
+`GET http://localhost:8000/health`는 `{"status":"ok"}`를 반환한다.
+
+```powershell
+python -m pytest
+python -m ruff check .
+python -m ruff format --check .
+```
+
+호스트에서 FastAPI를 직접 실행할 때는 `.env`에 `DATABASE_URL`을 별도로 설정한 뒤 다음을 사용한다.
+
+```powershell
+uvicorn seoul_mens_daily_edit.main:app --reload
+```
