@@ -3,6 +3,7 @@ from __future__ import annotations
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+import seoul_mens_daily_edit.weather.models  # noqa: F401
 from seoul_mens_daily_edit.core.config import get_settings
 from seoul_mens_daily_edit.db.base import Base
 

@@ -2,7 +2,7 @@
 
 서울의 다음 날 날씨에 맞는 20대 남성 데일리 코디를 하루 하나 제작해, 검수 후 Instagram fashion magazine 형식으로 게시하는 modular monolith 프로젝트다.
 
-현재 상태는 **PHASE 1 — Project Foundation 완료**다. Weather, outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
+현재 상태는 **PHASE 2 — Weather 완료**다. Outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
 
 ## Project documents
 
@@ -31,6 +31,15 @@ repo-scoped `.codex/config.toml`은 현재 추가하지 않았다. 기본 sandbo
 ## Configuration
 
 구현 Phase에서는 `.env.example`을 복사해 로컬 `.env`를 만들고 실제 credential은 로컬 또는 배포 secret store에만 입력한다. `.env`와 로컬 생성물은 Git에서 제외된다.
+
+## Weather
+
+PHASE 2는 [Open-Meteo Forecast API](https://open-meteo.com/en/docs)를 사용한다. API key 없이
+서울 좌표와 `Asia/Seoul` 기준 일별 최고/최저기온, 강수확률, WMO weather code를 제공하므로
+하루 1회 다음 날 예보에 적합하다. provider-specific HTTP/응답 처리는 `weather/provider.py`에만
+두고, 다른 모듈은 정규화된 `WeatherSnapshot`과 `get_tomorrow_weather()`를 사용한다.
+
+Weather credential은 필요하지 않으므로 `.env.example`에 추가할 변수는 없다.
 
 ## Local development
 

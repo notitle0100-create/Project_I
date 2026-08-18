@@ -36,13 +36,13 @@ Exit: fresh checkout에서 app/DB가 기동되고 health, migration, test, lint�
 
 ## PHASE 2 — Weather
 
-- [ ] 구현 시점에 문서화된 provider 선택
-- [ ] 서울/Asia-Seoul의 “다음 날” 경계와 typed schema
-- [ ] timeout, bounded retry, error mapping
-- [ ] `WeatherSnapshot`과 provenance 저장
-- [ ] valid/provider failure/missing field tests
+- [x] 구현 시점에 문서화된 provider 선택
+- [x] 서울/Asia-Seoul의 “다음 날” 경계와 typed schema
+- [x] timeout, bounded retry, error mapping
+- [x] `WeatherSnapshot`과 provenance 저장
+- [x] valid/provider failure/missing field tests
 
-Exit: LLM 없이 실제 예보를 정규화하고 provider 장애를 안전하게 처리한다.
+Exit: LLM 없이 실제 예보를 정규화하고 provider 장애를 안전하게 처리한다. (완료)
 
 ## PHASE 3 — Style and occasion
 
