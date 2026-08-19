@@ -1,8 +1,20 @@
 # SEOUL MEN'S DAILY EDIT
 
+## Image provider update
+
+V1 defaults to Cloudflare Workers AI with
+`@cf/black-forest-labs/flux-2-klein-4b`. It requests `1080x1350` directly and
+stores only image metadata and the local file path. OpenAI Image API remains an
+optional provider selected with `IMAGE_PROVIDER=openai`; it is not required for
+V1. Configure credentials only in the local `.env` or deployment secret store.
+
+Cloudflare live generation is limited to one image per request. It never
+automatically falls back to OpenAI or a paid mode when quota or account limits
+are reached.
+
 서울의 다음 날 날씨에 맞는 20대 남성 데일리 코디를 하루 하나 제작해, 검수 후 Instagram fashion magazine 형식으로 게시하는 modular monolith 프로젝트다.
 
-현재 상태는 **PHASE 4 — OutfitRecipe Generator 완료**다. Image, Instagram, Admin UI 도메인 기능은 아직 없다.
+현재 상태는 **PHASE 5 — AI Image Generation 구현 완료**다. Vision QC, Instagram, Admin UI 도메인 기능은 아직 없다. Live Cloudflare image smoke test는 credential 설정 후 별도로 수행한다.
 
 ## Project documents
 
@@ -51,6 +63,10 @@ controlled vocabulary 및 날씨 규칙으로만 결정하며, LLM·성과 기�
 ## Outfit recipes
 
 `generate_outfit_recipe(weather_snapshot, style_selection, repository)`는 두 입력의 target date가 일치할 때만 Pydantic `OutfitRecipe`를 만든다. 네 스타일의 결정론적 템플릿에 temperature band, 일교차, 비 규칙을 적용하고, 최근 8개 recipe signature를 참조해 중복을 줄인다. 같은 target date는 저장된 recipe를 그대로 반환한다. 실제 브랜드·상품·가격·구매 링크와 외부 API/LLM/image 호출은 포함하지 않는다.
+
+## Image generation
+
+PHASE 5는 [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)의 `@cf/black-forest-labs/flux-2-klein-4b`를 V1 기본 모델로 사용한다. `CLOUDFLARE_IMAGE_MODEL`과 `CLOUDFLARE_IMAGE_SIZE`로 교체 가능하며 `1080x1350`을 직접 생성한다. OpenAI Image API의 `gpt-image-2`는 `IMAGE_PROVIDER=openai`일 때만 사용하는 optional provider다. 생성 metadata와 상태만 DB에 저장하고 원본 binary는 Git-ignored `data/generated/YYYY-MM-DD/`에 저장한다. API key/token은 환경 변수에서만 읽으며 저장·로그 기록하지 않는다.
 
 ## Local development
 

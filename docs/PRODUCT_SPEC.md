@@ -1,5 +1,13 @@
 # Product specification
 
+## PHASE 5 image provider policy
+
+V1 uses Cloudflare Workers AI as the default image provider with
+`@cf/black-forest-labs/flux-2-klein-4b`. It generates the final `1080x1350`
+4:5 image directly. Cloudflare quota, credential, permission, and capacity
+failures must stop generation without automatic paid-provider fallback. OpenAI
+Image API remains optional and is selected only through configuration.
+
 `AGENTS.md`의 영구 범위 안에서 구현해야 할 제품·콘텐츠 상세 규칙이다. 구현 순서는 `PLAN.md`를 따른다.
 
 ## Product identity
@@ -65,7 +73,8 @@
 - 목표: photorealistic premium editorial, 사실적인 원단/주름/신체 비율, 자연광, clean composition.
 - malformed body/hands/footwear, clothing merge, fake logo, random text, watermark, 명백한 AI artifact를 허용하지 않는다.
 - 최종 이미지는 4:5, 1080×1350이다.
-- 구현 시점의 OpenAI 공식 Image API와 지원 모델을 확인하고 모델 ID는 env로 주입한다.
+- 구현 시점의 Cloudflare Workers AI 공식 REST API와 지원 모델을 확인하고 모델 ID는 env로 주입한다. OpenAI Image API는 optional provider로 유지한다.
+- PHASE 5는 단일 prompt 생성에 Cloudflare Workers AI와 기본 `@cf/black-forest-labs/flux-2-klein-4b`를 사용한다. generation size는 config로 관리하며 `1080x1350`을 직접 생성한다.
 - QC 결과에는 face/chin/jaw visibility, body/clothing/shoe anomaly, text artifact, quality, style accuracy, Instagram readiness가 포함되어야 한다.
 - 실패 원인을 반영한 재생성은 최대 1회다. 두 번째 실패는 `REVIEW_REQUIRED`로 보내고 게시하지 않는다.
 
@@ -94,6 +103,6 @@
 
 ## V1 technology and completion
 
-- Python 3.12+, FastAPI, Pydantic, PostgreSQL, SQLAlchemy, Alembic, OpenAI official SDK, documented Weather API, Pillow, simple scheduler, pytest, Docker/Compose.
+- Python 3.12+, FastAPI, Pydantic, PostgreSQL, SQLAlchemy, Alembic, Cloudflare Workers AI REST API, optional OpenAI SDK, documented Weather API, Pillow, simple scheduler, pytest, Docker/Compose.
 - V1 완료 흐름: 서울 다음 날 날씨 → 4-style rotation → recipe → faceless image → QC → magazine content → Admin 승인 → 19:30 KST 공식 게시.
 - V1에서 사람이 수행하는 작업은 최종 승인 하나여야 한다.

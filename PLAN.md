@@ -1,5 +1,15 @@
 # V1 implementation plan
 
+## PHASE 5 provider update — Cloudflare Workers AI
+
+- [x] Cloudflare Workers AI REST adapter for `@cf/black-forest-labs/flux-2-klein-4b`
+- [x] Cloudflare as the V1 default; OpenAI remains an explicit optional provider
+- [x] Direct `1080x1350` Cloudflare generation, bounded technical retries, and quota-safe errors
+- [x] Mocked provider, selection, processing, and OpenAI regression tests
+
+Status: Cloudflare Workers AI provider implementation: **DONE**. Live Cloudflare image
+smoke test: **PENDING**. OpenAI live smoke test: **OPTIONAL / NOT REQUIRED FOR V1**.
+
 ## Working protocol
 
 - 한 Codex 작업은 사용자가 명시하지 않는 한 하나의 Phase 또는 하나의 좁은 체크리스트 묶음만 다룬다.
@@ -67,14 +77,14 @@ Exit: 검증된 recipe만 이미지 단계로 전달된다. (완료)
 
 ## PHASE 5 — Image generation
 
-- [ ] 구현 시점 OpenAI 공식 Image API 확인
-- [ ] env model configuration과 startup validation
-- [ ] recipe 기반 faceless editorial prompt
-- [ ] timeout/error handling과 generation log
-- [ ] 4:5, 1080×1350 normalization
-- [ ] fake 기반 result/size/error tests
+- [x] Cloudflare Workers AI 공식 REST API 및 `@cf/black-forest-labs/flux-2-klein-4b` 확인
+- [x] env model configuration과 startup validation
+- [x] recipe 기반 faceless editorial prompt
+- [x] timeout/error handling과 generation log
+- [x] 4:5, 1080×1350 normalization
+- [x] fake 기반 result/size/error tests
 
-Exit: provenance를 가진 Instagram-ready 후보 이미지를 생성한다.
+Exit: provenance를 가진 Instagram-ready 후보 이미지를 생성한다. (구현 완료; Live Cloudflare image smoke test pending; OpenAI smoke test optional)
 
 ## PHASE 6 — Vision QC
 

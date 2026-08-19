@@ -30,6 +30,7 @@ dist/
 *.db
 *.sqlite
 *.sqlite3
+data/generated/
 var/
 
 # Logs and temporary files

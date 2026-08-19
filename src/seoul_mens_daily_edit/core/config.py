@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import PostgresDsn
+from pydantic import Field, PostgresDsn, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -19,6 +19,48 @@ class Settings(BaseSettings):
     timezone: str = "Asia/Seoul"
     dry_run: bool = True
     database_url: PostgresDsn
+
+    image_provider: Literal["cloudflare", "openai"] = "cloudflare"
+    cloudflare_account_id: str | None = None
+    cloudflare_api_token: SecretStr | None = None
+    cloudflare_image_model: str = "@cf/black-forest-labs/flux-2-klein-4b"
+    cloudflare_image_size: str = "1080x1350"
+    cloudflare_image_timeout_seconds: float = Field(default=60.0, gt=0)
+
+    openai_api_key: SecretStr | None = None
+    openai_image_model: str = "gpt-image-2"
+    openai_image_quality: Literal["low", "medium", "high", "auto"] = "medium"
+    openai_image_size: str = "1088x1360"
+    generated_images_dir: str = "data/generated"
+    openai_image_timeout_seconds: float = Field(default=60.0, gt=0)
+
+    @field_validator("openai_image_size")
+    @classmethod
+    def validate_openai_image_size(cls, value: str) -> str:
+        try:
+            width_text, height_text = value.lower().split("x", maxsplit=1)
+            width, height = int(width_text), int(height_text)
+        except ValueError as exc:
+            raise ValueError("openai_image_size must use WIDTHxHEIGHT") from exc
+        if width % 16 != 0 or height % 16 != 0:
+            raise ValueError("openai_image_size dimensions must be multiples of 16")
+        if width * 5 != height * 4:
+            raise ValueError("openai_image_size must use a 4:5 aspect ratio")
+        return value
+
+    @field_validator("cloudflare_image_size")
+    @classmethod
+    def validate_cloudflare_image_size(cls, value: str) -> str:
+        try:
+            width_text, height_text = value.lower().split("x", maxsplit=1)
+            width, height = int(width_text), int(height_text)
+        except ValueError as exc:
+            raise ValueError("cloudflare_image_size must use WIDTHxHEIGHT") from exc
+        if not 256 <= width <= 1920 or not 256 <= height <= 1920:
+            raise ValueError("cloudflare_image_size dimensions must be between 256 and 1920")
+        if width * 5 != height * 4:
+            raise ValueError("cloudflare_image_size must use a 4:5 aspect ratio")
+        return value
 
 
 @lru_cache
