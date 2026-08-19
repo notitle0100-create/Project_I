@@ -56,14 +56,14 @@ Exit: 중복 실행과 재시작에도 다음 스타일이 일관되다. (완료
 
 ## PHASE 4 — OutfitRecipe
 
-- [ ] Pydantic recipe/garment schemas
-- [ ] 온도·일교차·비 규칙
-- [ ] structured generation과 validation
-- [ ] composition preference/history
-- [ ] invalid output의 bounded correction
-- [ ] schema/temperature/style tests
+- [x] Pydantic recipe/garment schemas
+- [x] 온도·일교차·비 규칙
+- [x] structured generation과 validation
+- [x] recipe signature variation/history
+- [x] invalid output의 bounded correction
+- [x] schema/temperature/style tests
 
-Exit: 검증된 recipe만 이미지 단계로 전달된다.
+Exit: 검증된 recipe만 이미지 단계로 전달된다. (완료)
 
 ## PHASE 5 — Image generation
 

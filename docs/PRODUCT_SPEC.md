@@ -48,13 +48,14 @@
 
 복잡한 weather scoring engine은 만들지 않는다.
 
-## OutfitRecipe and composition
+## OutfitRecipe and later composition
 
 - 이미지보다 먼저 Pydantic으로 검증되는 structured `OutfitRecipe`를 만든다.
-- 최소 필드: style, occasion, weather summary, top, bottom, shoes, bag, accessories, composition, scene.
+- 최소 필드: target date, style, occasion, mood, top, bottom, nullable outer, shoes, nullable bag, accessories, palette, layering depth, styling notes.
+- OutfitRecipe에는 실제 brand/product/SKU/price/shop/purchase URL을 넣지 않는다. composition과 scene은 image 단계에서 분리한다.
 - schema, 온도 적합성, 스타일 적합성을 통과한 recipe만 이미지 단계로 넘긴다.
 - 허용 composition: `FACELESS_HERO`, `EDITORIAL_CROP`, `REAR`, `THREE_QUARTER_REAR`, `STREET_SNAP`, `DETAIL_EDITORIAL`.
-- 최근 composition history를 참고해 반복을 줄인다.
+- 최근 recipe signature(style/top/bottom/palette/outer/shoes)를 참고해 반복을 줄인다.
 - SOFT_BOYFRIEND/MINIMAL은 hero·editorial, AMEKAJI는 hero·rear·detail, OTAKU_GRUNGE는 street·rear·detail·hero를 우선한다.
 
 ## Image identity and QC

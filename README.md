@@ -2,7 +2,7 @@
 
 서울의 다음 날 날씨에 맞는 20대 남성 데일리 코디를 하루 하나 제작해, 검수 후 Instagram fashion magazine 형식으로 게시하는 modular monolith 프로젝트다.
 
-현재 상태는 **PHASE 3 — Style Rotation + Occasion/Mood 완료**다. Outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
+현재 상태는 **PHASE 4 — OutfitRecipe Generator 완료**다. Image, Instagram, Admin UI 도메인 기능은 아직 없다.
 
 ## Project documents
 
@@ -47,6 +47,10 @@ Weather credential은 필요하지 않으므로 `.env.example`에 추가할 변�
 `SOFT_BOYFRIEND → MINIMAL → AMEKAJI → OTAKU_GRUNGE` 순서를 반복한다. 같은 `target_date`는
 기존 결과를 반환하며, 최근 8개의 style/occasion/mood 조합을 피한다. Occasion과 mood는 작은
 controlled vocabulary 및 날씨 규칙으로만 결정하며, LLM·성과 기반 최적화·의상 선택은 포함하지 않는다.
+
+## Outfit recipes
+
+`generate_outfit_recipe(weather_snapshot, style_selection, repository)`는 두 입력의 target date가 일치할 때만 Pydantic `OutfitRecipe`를 만든다. 네 스타일의 결정론적 템플릿에 temperature band, 일교차, 비 규칙을 적용하고, 최근 8개 recipe signature를 참조해 중복을 줄인다. 같은 target date는 저장된 recipe를 그대로 반환한다. 실제 브랜드·상품·가격·구매 링크와 외부 API/LLM/image 호출은 포함하지 않는다.
 
 ## Local development
 
