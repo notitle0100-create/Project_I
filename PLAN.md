@@ -46,13 +46,13 @@ Exit: LLM 없이 실제 예보를 정규화하고 provider 장애를 안전하�
 
 ## PHASE 3 — Style and occasion
 
-- [ ] 네 style preset과 정확한 rotation
-- [ ] DB-backed position과 restart persistence
-- [ ] 작은 occasion/mood 집합과 selection policy
-- [ ] composition history 조회
-- [ ] rotation/restart tests
+- [x] 네 style preset과 정확한 rotation
+- [x] DB-backed selection과 restart persistence
+- [x] 작은 occasion/mood 집합과 deterministic selection policy
+- [x] 최근 style/occasion/mood 조합 이력 조회
+- [x] rotation/restart/idempotency tests
 
-Exit: 중복 실행과 재시작에도 다음 스타일이 일관되다.
+Exit: 중복 실행과 재시작에도 다음 스타일이 일관되다. (완료)
 
 ## PHASE 4 — OutfitRecipe
 

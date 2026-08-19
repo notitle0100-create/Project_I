@@ -20,6 +20,14 @@
 - `AMEKAJI`: denim, fatigue/workwear, canvas, leather, heritage; 코스튬보다 일상성 우선
 - `OTAKU_GRUNGE`: washed black/charcoal, original anime-inspired graphic, distressed denim/cargo, chain/keyring/headphones/chunky footwear; 코스프레와 저작권 캐릭터 복제 금지
 
+### OTAKU_GRUNGE visual direction
+
+- The referenced video grounds the look in a long black padded outer layer over a light hoodie with relaxed denim, plus a relaxed black blazer over a dark graphic inner layer. Favor an elongated, loose silhouette and restrained dark-on-light contrast rather than costume styling.
+- User-provided image references add washed black/charcoal, wide or distressed denim/cargo, layered plaid, and a single graphic tee focal point.
+- Details may include a chain, keyring, bag charm, headphones, or similarly restrained hardware; the result should read as everyday streetwear, not a costume.
+- Anime-inspired graphics are a styling reference only. Do not reproduce a specific copyrighted character, logo, or artwork in generated imagery.
+- Reference video: <https://www.youtube.com/watch?v=eWZ7nAF3JMs&list=PLPkXedpYi1q7fl6DfBKNSSXI2vn4wTfni>
+
 ## Weather rules
 
 - 위치: Seoul, South Korea

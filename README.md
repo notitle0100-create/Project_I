@@ -2,7 +2,7 @@
 
 서울의 다음 날 날씨에 맞는 20대 남성 데일리 코디를 하루 하나 제작해, 검수 후 Instagram fashion magazine 형식으로 게시하는 modular monolith 프로젝트다.
 
-현재 상태는 **PHASE 2 — Weather 완료**다. Outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
+현재 상태는 **PHASE 3 — Style Rotation + Occasion/Mood 완료**다. Outfit, image, Instagram, Admin UI 도메인 기능은 아직 없다.
 
 ## Project documents
 
@@ -40,6 +40,13 @@ PHASE 2는 [Open-Meteo Forecast API](https://open-meteo.com/en/docs)를 사용�
 두고, 다른 모듈은 정규화된 `WeatherSnapshot`과 `get_tomorrow_weather()`를 사용한다.
 
 Weather credential은 필요하지 않으므로 `.env.example`에 추가할 변수는 없다.
+
+## Style context
+
+`select_style_context(target_date, weather_snapshot, repository)`는 저장된 선택 이력을 기준으로
+`SOFT_BOYFRIEND → MINIMAL → AMEKAJI → OTAKU_GRUNGE` 순서를 반복한다. 같은 `target_date`는
+기존 결과를 반환하며, 최근 8개의 style/occasion/mood 조합을 피한다. Occasion과 mood는 작은
+controlled vocabulary 및 날씨 규칙으로만 결정하며, LLM·성과 기반 최적화·의상 선택은 포함하지 않는다.
 
 ## Local development
 
