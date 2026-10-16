@@ -1,9 +1,15 @@
 from __future__ import annotations
 
-from seoul_mens_daily_edit.images.domain import GeneratedImage, ImageGenerationStatus
+from seoul_mens_daily_edit.images.domain import (
+    GeneratedImage,
+    ImageGenerationStatus,
+    ReferenceImage,
+)
 from seoul_mens_daily_edit.images.policy import (
+    RECENT_ART_DIRECTION_LIMIT,
     RECENT_COMPOSITION_LIMIT,
     RECENT_SCENE_LIMIT,
+    select_art_direction,
     select_composition,
     select_scene,
 )
@@ -48,6 +54,8 @@ class ImageGenerationService:
         weather_snapshot: WeatherSnapshot,
         style_selection: StyleSelection,
         outfit_recipe: OutfitRecipe,
+        *,
+        reference_images: tuple[ReferenceImage, ...] = (),
     ) -> GeneratedImage:
         validate_image_context(weather_snapshot, style_selection, outfit_recipe)
         existing = self._repository.get_by_target_date(outfit_recipe.target_date)
@@ -67,12 +75,20 @@ class ImageGenerationService:
             outfit_recipe.target_date,
             self._repository.get_recent_scenes(RECENT_SCENE_LIMIT),
         )
+        art_direction = select_art_direction(
+            style_selection.style,
+            outfit_recipe.target_date,
+            self._repository.get_recent_art_direction_presets(RECENT_ART_DIRECTION_LIMIT),
+            composition,
+        )
         prompt = self._prompt_builder.build(
             weather_snapshot,
             style_selection,
             outfit_recipe,
             composition,
             scene=scene,
+            art_direction=art_direction,
+            reference_images=reference_images,
         )
         generation = self._repository.begin(
             prompt,

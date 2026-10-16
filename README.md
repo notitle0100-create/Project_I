@@ -1,10 +1,15 @@
 # SEOUL MEN'S DAILY EDIT
 
+> Discontinued project, published for reference. Development stopped before
+> PHASE 6; the application is incomplete and is not production-ready.
+> Source code is available under the [MIT License](LICENSE).
+
 ## Image provider update
 
 V1 defaults to Cloudflare Workers AI with
-`@cf/black-forest-labs/flux-2-klein-4b`. It requests `1080x1350` directly and
-stores only image metadata and the local file path. OpenAI Image API remains an
+`@cf/black-forest-labs/flux-2-klein-4b`. It requests `1088x1360` and normalizes
+the image to `1080x1350` without cropping or stretching. It stores only image
+metadata and the local file path. OpenAI Image API remains an
 optional provider selected with `IMAGE_PROVIDER=openai`; it is not required for
 V1. Configure credentials only in the local `.env` or deployment secret store.
 
@@ -62,11 +67,11 @@ controlled vocabulary 및 날씨 규칙으로만 결정하며, LLM·성과 기�
 
 ## Outfit recipes
 
-`generate_outfit_recipe(weather_snapshot, style_selection, repository)`는 두 입력의 target date가 일치할 때만 Pydantic `OutfitRecipe`를 만든다. 네 스타일의 결정론적 템플릿에 temperature band, 일교차, 비 규칙을 적용하고, 최근 8개 recipe signature를 참조해 중복을 줄인다. 같은 target date는 저장된 recipe를 그대로 반환한다. 실제 브랜드·상품·가격·구매 링크와 외부 API/LLM/image 호출은 포함하지 않는다.
+`generate_outfit_recipe(weather_snapshot, style_selection, repository)`는 두 입력의 target date가 일치할 때만 Pydantic `OutfitRecipe`를 만든다. 네 스타일의 결정론적 policy에 temperature band, 일교차, 비 규칙을 적용하고, 최근 8개 recipe signature를 참조해 의류명뿐 아니라 silhouette strategy, pant break, footwear weight, OTAKU content axis의 반복도 줄인다. Recipe는 controlled silhouette profile과 제한된 bag/accessory placement·role을 포함하며, 같은 target date는 저장된 recipe를 그대로 반환한다. 실제 브랜드·상품·가격·구매 링크와 외부 API/LLM/image 호출은 포함하지 않는다.
 
 ## Image generation
 
-PHASE 5는 [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)의 `@cf/black-forest-labs/flux-2-klein-4b`를 V1 기본 모델로 사용한다. `CLOUDFLARE_IMAGE_MODEL`과 `CLOUDFLARE_IMAGE_SIZE`로 교체 가능하며 `1080x1350`을 직접 생성한다. OpenAI Image API의 `gpt-image-2`는 `IMAGE_PROVIDER=openai`일 때만 사용하는 optional provider다. 생성 metadata와 상태만 DB에 저장하고 원본 binary는 Git-ignored `data/generated/YYYY-MM-DD/`에 저장한다. API key/token은 환경 변수에서만 읽으며 저장·로그 기록하지 않는다.
+PHASE 5는 [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)의 `@cf/black-forest-labs/flux-2-klein-4b`를 V1 기본 모델로 사용한다. Cloudflare 요청에는 FLUX.2의 structured JSON prompt를 사용하고, OpenAI Image API의 `gpt-image-2`는 `IMAGE_PROVIDER=openai`일 때만 기존 text prompt를 사용하는 optional provider다. Prompt는 faceless framing → silhouette → garment structure → proportion → pose/art direction → style/texture → scene 순서를 사용한다. Controlled art direction은 pose, camera, subject position, frame occupancy, negative space, tactile scene, lighting을 회전해 static catalog pose를 피한다. `CLOUDFLARE_IMAGE_GUIDANCE`는 Cloudflare가 문서화한 optional float이며, 비워 두면 provider 기본 동작을 유지한다. 실제 provider 출력 검증에 맞춰 `CLOUDFLARE_IMAGE_SIZE=1088x1360`을 요청하고 Pillow로 crop/stretch 없이 `1080x1350` PNG로 정규화한다. 생성 metadata와 상태만 DB에 저장하고 원본 binary는 Git-ignored `data/generated/YYYY-MM-DD/`에 저장한다. API key/token은 환경 변수에서만 읽으며 저장·로그 기록하지 않는다.
 
 ## Local development
 

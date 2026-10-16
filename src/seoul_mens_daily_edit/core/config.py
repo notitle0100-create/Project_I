@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import math
 from functools import lru_cache
 from typing import Literal
 
 from pydantic import Field, PostgresDsn, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+CLOUDFLARE_KLEIN_4B_MODEL = "@cf/black-forest-labs/flux-2-klein-4b"
+CLOUDFLARE_KLEIN_9B_MODEL = "@cf/black-forest-labs/flux-2-klein-9b"
 
 
 class Settings(BaseSettings):
@@ -23,8 +27,13 @@ class Settings(BaseSettings):
     image_provider: Literal["cloudflare", "openai"] = "cloudflare"
     cloudflare_account_id: str | None = None
     cloudflare_api_token: SecretStr | None = None
-    cloudflare_image_model: str = "@cf/black-forest-labs/flux-2-klein-4b"
-    cloudflare_image_size: str = "1080x1350"
+    cloudflare_image_model: Literal[
+        "@cf/black-forest-labs/flux-2-klein-4b",
+        "@cf/black-forest-labs/flux-2-klein-9b",
+    ] = CLOUDFLARE_KLEIN_4B_MODEL
+    cloudflare_image_size: str = "1088x1360"
+    cloudflare_image_guidance: float | None = None
+    cloudflare_image_seed: int | None = Field(default=None, ge=0)
     cloudflare_image_timeout_seconds: float = Field(default=60.0, gt=0)
 
     openai_api_key: SecretStr | None = None
@@ -60,6 +69,13 @@ class Settings(BaseSettings):
             raise ValueError("cloudflare_image_size dimensions must be between 256 and 1920")
         if width * 5 != height * 4:
             raise ValueError("cloudflare_image_size must use a 4:5 aspect ratio")
+        return value
+
+    @field_validator("cloudflare_image_guidance")
+    @classmethod
+    def validate_cloudflare_image_guidance(cls, value: float | None) -> float | None:
+        if value is not None and not math.isfinite(value):
+            raise ValueError("cloudflare_image_guidance must be a finite float")
         return value
 
 

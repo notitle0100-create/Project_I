@@ -3,8 +3,9 @@
 ## PHASE 5 image provider policy
 
 V1 uses Cloudflare Workers AI as the default image provider with
-`@cf/black-forest-labs/flux-2-klein-4b`. It generates the final `1080x1350`
-4:5 image directly. Cloudflare quota, credential, permission, and capacity
+`@cf/black-forest-labs/flux-2-klein-4b`. It requests `1088x1360` and
+normalizes to the final `1080x1350` 4:5 image without cropping or stretching.
+Cloudflare quota, credential, permission, and capacity
 failures must stop generation without automatic paid-provider fallback. OpenAI
 Image API remains optional and is selected only through configuration.
 
@@ -23,17 +24,21 @@ Image API remains optional and is selected only through configuration.
 
 `SOFT_BOYFRIEND → MINIMAL → AMEKAJI → OTAKU_GRUNGE → repeat`
 
-- `SOFT_BOYFRIEND`: clean, relaxed, soft, wearable, natural layering, 현실적인 남친룩
+- `SOFT_BOYFRIEND`: soft tactile upper, controlled relaxed proportion, intentional understated
+  footwear, and contemporary 20s casual layering; a gray/navy/white office-casual formula is not
+  a default.
 - `MINIMAL`: neutral palette, clean lines, low visual noise, proportions와 silhouette 중심
 - `AMEKAJI`: denim, fatigue/workwear, canvas, leather, heritage; 코스튬보다 일상성 우선
-- `OTAKU_GRUNGE`: washed black/charcoal, original anime-inspired graphic, distressed denim/cargo, chain/keyring/headphones/chunky footwear; 코스프레와 저작권 캐릭터 복제 금지
+- `OTAKU_GRUNGE`: contemporary Korean/Japanese alternative men's streetwear: washed black/charcoal, deliberate upper/lower proportion, controlled contrast, restrained rock influence, and everyday editorial wearability.
 
 ### OTAKU_GRUNGE visual direction
 
-- The referenced video grounds the look in a long black padded outer layer over a light hoodie with relaxed denim, plus a relaxed black blazer over a dark graphic inner layer. Favor an elongated, loose silhouette and restrained dark-on-light contrast rather than costume styling.
-- User-provided image references add washed black/charcoal, wide or distressed denim/cargo, layered plaid, and a single graphic tee focal point.
-- Details may include a chain, keyring, bag charm, headphones, or similarly restrained hardware; the result should read as everyday streetwear, not a costume.
-- Anime-inspired graphics are a styling reference only. Do not reproduce a specific copyrighted character, logo, or artwork in generated imagery.
+- Two content axes are used: `DETAILED_DARK_TOP` (dark tailoring, construction, texture, or layering as the focal point) and `GRAPHIC_FOCAL_TOP` (an original abstract or anime-inspired graphic, never a copied character).
+- Tailoring, long outerwear, faded/distressed texture, and vertical layering are optional structural devices; flannel is optional and never a core archetype.
+- Generic black cargo, techwear, and random chain/keyring stacking are not defaults. Cargo or Bermuda lower is used only when it serves the selected silhouette.
+- All-black uses washed black, charcoal, matte black, faded black, and material contrast. Silver details are limited to one or two focal points at the neck, waist, wrist, or bag.
+- Footwear uses a brand-agnostic visual weight: restrained low-profile sneaker, dark leather footwear, bulky black layered-sole sneaker, or rugged work boot.
+- User-provided references ground the visual grammar. Graphics must remain original and abstract; the result must read as everyday streetwear rather than cosplay.
 - Reference video: <https://www.youtube.com/watch?v=eWZ7nAF3JMs&list=PLPkXedpYi1q7fl6DfBKNSSXI2vn4wTfni>
 
 ## Weather rules
@@ -59,7 +64,8 @@ Image API remains optional and is selected only through configuration.
 ## OutfitRecipe and later composition
 
 - 이미지보다 먼저 Pydantic으로 검증되는 structured `OutfitRecipe`를 만든다.
-- 최소 필드: target date, style, occasion, mood, top, bottom, nullable outer, shoes, nullable bag, accessories, palette, layering depth, styling notes.
+- 최소 필드: target date, style, occasion, mood, top, bottom, nullable outer, shoes, nullable bag, accessories, palette, layering depth, styling notes, controlled silhouette profile, optional OTAKU content axis. Recipe JSON also uses a small controlled vocabulary for top structure, bottom structure, texture profile, layering role, and footwear shape; it does not introduce free-text garment specifications or database columns.
+- Silhouette profile은 upper volume, top length, shoulder shape, outer length, lower volume, pant break, footwear visual weight, and strategy를 작은 enum으로 관리한다. 가방·액세서리에는 제한된 carry/placement와 visual role을 둔다.
 - OutfitRecipe에는 실제 brand/product/SKU/price/shop/purchase URL을 넣지 않는다. composition과 scene은 image 단계에서 분리한다.
 - schema, 온도 적합성, 스타일 적합성을 통과한 recipe만 이미지 단계로 넘긴다.
 - 허용 composition: `FACELESS_HERO`, `EDITORIAL_CROP`, `REAR`, `THREE_QUARTER_REAR`, `STREET_SNAP`, `DETAIL_EDITORIAL`.
@@ -70,11 +76,12 @@ Image API remains optional and is selected only through configuration.
 
 - 성인 남성의 slim-to-average silhouette를 사용하고 실제 인물·유명인을 복제하지 않는다.
 - face, chin, jawline 중 하나라도 보이면 hard fail이다. 머리카락·뒤통수는 허용한다.
-- 목표: photorealistic premium editorial, 사실적인 원단/주름/신체 비율, 자연광, clean composition.
+- 목표: photorealistic premium editorial, 사실적인 원단/주름/신체 비율, available/soft light, tactile urban or architectural context, intentional negative space.
+- Image 단계는 style별 controlled art direction preset으로 pose, body angle, camera height/distance, subject position, frame occupancy, negative space, background texture/clarity, lighting을 선택한다. 같은 centered standing catalog pose를 기본값으로 두지 않는다.
 - malformed body/hands/footwear, clothing merge, fake logo, random text, watermark, 명백한 AI artifact를 허용하지 않는다.
 - 최종 이미지는 4:5, 1080×1350이다.
 - 구현 시점의 Cloudflare Workers AI 공식 REST API와 지원 모델을 확인하고 모델 ID는 env로 주입한다. OpenAI Image API는 optional provider로 유지한다.
-- PHASE 5는 단일 prompt 생성에 Cloudflare Workers AI와 기본 `@cf/black-forest-labs/flux-2-klein-4b`를 사용한다. generation size는 config로 관리하며 `1080x1350`을 직접 생성한다.
+- PHASE 5는 단일 prompt 생성에 Cloudflare Workers AI와 기본 `@cf/black-forest-labs/flux-2-klein-4b`를 사용한다. generation size는 config로 관리하며 `1088x1360`을 `1080x1350`으로 resize한다.
 - QC 결과에는 face/chin/jaw visibility, body/clothing/shoe anomaly, text artifact, quality, style accuracy, Instagram readiness가 포함되어야 한다.
 - 실패 원인을 반영한 재생성은 최대 1회다. 두 번째 실패는 `REVIEW_REQUIRED`로 보내고 게시하지 않는다.
 

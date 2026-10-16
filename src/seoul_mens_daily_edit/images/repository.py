@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime
 
 from sqlalchemy import select
@@ -7,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from seoul_mens_daily_edit.images.domain import (
+    ArtDirectionPreset,
     GeneratedImage,
     ImageGenerationPrompt,
     ImageGenerationStatus,
@@ -33,6 +35,18 @@ class ImageGenerationRepository:
 
     def get_recent_scenes(self, limit: int) -> list[str]:
         return [record.scene for record in self._recent_successes(limit)]
+
+    def get_recent_art_direction_presets(self, limit: int) -> list[ArtDirectionPreset]:
+        presets: list[ArtDirectionPreset] = []
+        for record in self._recent_successes(limit):
+            match = _ART_DIRECTION_PRESET_PATTERN.search(record.prompt)
+            if match is None:
+                continue
+            try:
+                presets.append(ArtDirectionPreset(match.group(1)))
+            except ValueError:
+                continue
+        return presets
 
     def begin(
         self,
@@ -183,3 +197,6 @@ def _aware_datetime(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         return value.replace(tzinfo=UTC)
     return value
+
+
+_ART_DIRECTION_PRESET_PATTERN = re.compile(r"Art direction preset: ([A-Z_]+)\.")

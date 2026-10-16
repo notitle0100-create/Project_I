@@ -52,7 +52,7 @@ class FakeProvider:
         self, prompt: ImageGenerationPrompt, width: int, height: int
     ) -> GeneratedImagePayload:
         self.calls += 1
-        assert "FACELESS HARD CONSTRAINTS" in prompt.text
+        assert prompt.flux_structured_text is not None
         assert (width, height) == (1088, 1360)
         if self._error is not None:
             raise self._error
@@ -118,6 +118,7 @@ def test_generation_persists_metadata_and_is_idempotent(
     assert repeated == first
     assert provider.calls == 1
     assert count == 1
+    assert len(repository.get_recent_art_direction_presets(1)) == 1
 
 
 def test_provider_failure_is_persisted_without_raw_error_details(

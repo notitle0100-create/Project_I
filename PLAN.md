@@ -4,11 +4,93 @@
 
 - [x] Cloudflare Workers AI REST adapter for `@cf/black-forest-labs/flux-2-klein-4b`
 - [x] Cloudflare as the V1 default; OpenAI remains an explicit optional provider
-- [x] Direct `1080x1350` Cloudflare generation, bounded technical retries, and quota-safe errors
+- [x] Cloudflare `1088x1360` generation with `1080x1350` normalization, bounded technical retries, and quota-safe errors
 - [x] Mocked provider, selection, processing, and OpenAI regression tests
 
-Status: Cloudflare Workers AI provider implementation: **DONE**. Live Cloudflare image
-smoke test: **PENDING**. OpenAI live smoke test: **OPTIONAL / NOT REQUIRED FOR V1**.
+Status: Cloudflare Workers AI provider implementation: **DONE**. Initial live Cloudflare smoke
+test completed; reference-calibrated live results are recorded below. OpenAI live smoke test remains
+**OPTIONAL / NOT REQUIRED FOR V1**.
+
+## PHASE 5.1 — Prompt calibration spike
+
+- [x] Front-load positive neck-down composition instructions for front-facing faceless images
+- [x] Send FLUX.2's documented structured JSON prompt only through the Cloudflare adapter
+- [x] Add optional Cloudflare `guidance` forwarding without setting a project default
+- [x] Recalibrate OTAKU_GRUNGE as three concrete, wearable archetypes
+- [x] Run one SOFT_BOYFRIEND and one OTAKU_GRUNGE live sample (no retry)
+
+Exit: determine whether klein 4B can follow the faceless composition with the calibrated prompt;
+this spike does not start PHASE 6 or add Vision QC.
+
+Status: SOFT_BOYFRIEND FACELESS_HERO passed visual framing. The FLANNEL_GRUNGE sample
+expressed the intended streetwear grammar but retained chin/jaw facial area; no further live
+generation was performed. PHASE 6 remains unstarted.
+
+## PHASE 4.5 — Reference-calibrated styling
+
+- [x] Add controlled OutfitRecipe silhouette profile and silhouette strategies without a migration
+- [x] Include silhouette/pant break/footwear weight/content axis in recipe diversity signatures
+- [x] Replace OTAKU fixed FLANNEL_GRUNGE archetype with `DETAILED_DARK_TOP` and
+  `GRAPHIC_FOCAL_TOP` content axes
+- [x] Apply restrained accessory placement/role and all-black tonal hierarchy rules
+- [x] Add SOFT_BOYFRIEND, MINIMAL, AMEKAJI, OTAKU, weather, compatibility, and invalid-combination tests
+
+Status: **IMPLEMENTED**. The current recipe JSON payload is extended without new columns or an
+Alembic migration. All local tests pass.
+
+## PHASE 5.2 — Reference-calibrated art direction
+
+- [x] Add provider-neutral controlled art direction preset, pose, camera, occupancy, space, texture,
+  clarity, lighting, and mood fields
+- [x] Rotate art direction, scene, composition, and recent preset history without a new DB column
+- [x] Front-load faceless framing, silhouette, garment structure, proportion, and pose in text/FLUX JSON prompts
+- [x] Replace generic scene catalog with a small controlled scene vocabulary
+- [x] Run exactly one Cloudflare live image for each of SOFT_BOYFRIEND, MINIMAL, AMEKAJI, and OTAKU_GRUNGE
+
+Status: **IMPLEMENTED; LIVE CALIBRATION FOLLOW-UP REQUIRED**. The four-call smoke run produced
+valid files. SOFT_BOYFRIEND and MINIMAL were neck-down; AMEKAJI used an allowed rear head; the
+OTAKU_GRUNGE `STREET_SNAP` sample exposed a face. No retry was made. The STREET_SNAP positive
+head-outside framing was strengthened and unit-tested, but it has not been revalidated live because
+the four-call budget was exhausted. PHASE 6 remains unstarted.
+
+## PHASE 5.3 — Reference image conditioning spike
+
+- [x] Confirm documented FLUX.2 klein 4B multipart multi-reference, guidance, and seed support
+- [x] Create Git-ignored, head-out, aspect-preserving PNG derivatives below 512×512
+- [x] Add Cloudflare-only optional `input_image_0` / `input_image_1` forwarding with no more than two references
+- [x] Front-load copy-safe visual-grammar reference instruction without changing text-only behavior
+- [x] Run exactly one reference-conditioned SOFT_BOYFRIEND and one OTAKU_GRUNGE live image
+
+Status: **IMPLEMENTED; CALIBRATION RESULT RECORDED**. The SOFT_BOYFRIEND sample retained a
+chin/jaw area and therefore failed the faceless hard policy. The OTAKU_GRUNGE rear sample kept
+the face invisible, but expressed a cleaner tailored look than the intended faded/alternative
+streetwear range. No retry was performed. These results do not start PHASE 6 or add Vision QC.
+
+## PHASE 5.4 — Controlled klein 4B vs 9B quality A/B spike
+
+- [x] Verify current Cloudflare klein 9B model, multipart reference, seed, and pricing documentation
+- [x] Keep klein 4B as the V1 default while allowing explicit klein 9B calibration configuration
+- [x] Tighten relaxed garment drape, soft silhouette, OTAKU hero, bag, and art-direction policies
+- [x] Mock-test 9B endpoint, existing 4B behavior, shared seed/reference request fields, and model-only variation
+- [x] Generate the bounded SOFT_BOYFRIEND and OTAKU_GRUNGE 4B/9B pairs for human review
+
+Status: **IMPLEMENTED; HUMAN EVALUATION COMPLETE**. The 9B samples improved texture/rendering,
+but did not resolve style accuracy or art-direction calibration. The 4B default remains unchanged;
+PHASE 6 remains unstarted.
+
+## PHASE 4.6 / PHASE 5.5 — Garment vocabulary and editorial validation
+
+- [x] Calibrate controlled recipe vocabulary for garment structure, lower structure, texture,
+  layering role, and footwear shape without a migration
+- [x] Rotate SOFT_BOYFRIEND away from the gray/navy/white office-casual fallback
+- [x] Rotate OTAKU_GRUNGE across detailed/graphic uppers and at least four lower families,
+  with bag restraint and simple blazer-history avoidance
+- [x] Validate two reference-conditioned klein 4B samples only after tests pass
+
+Status: **IMPLEMENTED; HUMAN REVIEW REQUIRED**. Both bounded klein 4B outputs were technically
+generated, but each exposed facial regions. No retry was made, and this calibration does not start
+PHASE 6, add Vision QC, or change the default model. See
+[`docs/EDITORIAL_GENERATION_VALIDATION.md`](docs/EDITORIAL_GENERATION_VALIDATION.md).
 
 ## Working protocol
 

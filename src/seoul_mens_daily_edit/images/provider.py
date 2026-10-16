@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from io import BytesIO
 from typing import Protocol
 
 import httpx
@@ -13,11 +14,18 @@ from openai import (
     OpenAI,
     RateLimitError,
 )
+from PIL import Image, UnidentifiedImageError
 
 from seoul_mens_daily_edit.core.config import Settings
-from seoul_mens_daily_edit.images.domain import GeneratedImagePayload, ImageGenerationPrompt
+from seoul_mens_daily_edit.images.domain import (
+    GeneratedImagePayload,
+    ImageGenerationPrompt,
+    ReferenceImage,
+)
 
 MAX_PROVIDER_ATTEMPTS = 2
+MAX_REFERENCE_IMAGES = 2
+MAX_REFERENCE_DIMENSION = 511
 _CLOUDFLARE_ACCOUNT_ID_PATTERN = re.compile(r"^[a-f0-9]{32}$", re.IGNORECASE)
 _CLOUDFLARE_MODEL_PATTERN = re.compile(r"^@cf/[a-z0-9-]+/[a-z0-9.-]+$", re.IGNORECASE)
 
@@ -58,6 +66,8 @@ class CloudflareWorkersAIProvider:
         self._account_id = account_id
         self._api_token = api_token
         self._model = settings.cloudflare_image_model
+        self._guidance = settings.cloudflare_image_guidance
+        self._seed = settings.cloudflare_image_seed
         self._client = client or httpx.Client(timeout=settings.cloudflare_image_timeout_seconds)
 
     def generate(
@@ -71,11 +81,7 @@ class CloudflareWorkersAIProvider:
                 response = self._client.post(
                     self._endpoint,
                     headers={"Authorization": f"Bearer {self._api_token}"},
-                    files={
-                        "prompt": (None, prompt.text),
-                        "width": (None, str(width)),
-                        "height": (None, str(height)),
-                    },
+                    files=self._multipart_fields(prompt, width, height),
                 )
                 payload = _decode_cloudflare_response(response)
                 return payload
@@ -101,6 +107,29 @@ class CloudflareWorkersAIProvider:
             f"https://api.cloudflare.com/client/v4/accounts/{self._account_id}/ai/run/{self._model}"
         )
 
+    def _multipart_fields(
+        self, prompt: ImageGenerationPrompt, width: int, height: int
+    ) -> dict[str, tuple[None, str] | tuple[str, bytes, str]]:
+        fields: dict[str, tuple[None, str] | tuple[str, bytes, str]] = {
+            "prompt": (None, prompt.flux_structured_text or prompt.text),
+            "width": (None, str(width)),
+            "height": (None, str(height)),
+        }
+        if self._guidance is not None:
+            fields["guidance"] = (None, str(self._guidance))
+        if self._seed is not None:
+            fields["seed"] = (None, str(self._seed))
+        if len(prompt.reference_images) > MAX_REFERENCE_IMAGES:
+            raise ImageProviderError("provider_invalid_reference_image", retryable=False)
+        for index, reference in enumerate(prompt.reference_images):
+            _validate_reference_image(reference)
+            fields[f"input_image_{index}"] = (
+                reference.filename,
+                reference.content,
+                "image/png",
+            )
+        return fields
+
 
 class OpenAIImageProvider:
     """Optional provider retained for explicit IMAGE_PROVIDER=openai selection."""
@@ -120,6 +149,8 @@ class OpenAIImageProvider:
     def generate(
         self, prompt: ImageGenerationPrompt, width: int, height: int
     ) -> GeneratedImagePayload:
+        if prompt.reference_images:
+            raise ImageProviderError("provider_reference_images_unsupported", retryable=False)
         last_error: ImageProviderError | None = None
         for attempt in range(MAX_PROVIDER_ATTEMPTS):
             try:
@@ -172,6 +203,22 @@ def _validate_cloudflare_dimensions(width: int, height: int) -> None:
         raise ImageProviderError("provider_invalid_request", retryable=False)
 
 
+def _validate_reference_image(reference: ReferenceImage) -> None:
+    try:
+        with Image.open(BytesIO(reference.content)) as image:
+            image.load()
+            if (
+                image.format != "PNG"
+                or image.width > MAX_REFERENCE_DIMENSION
+                or image.height > MAX_REFERENCE_DIMENSION
+            ):
+                raise ImageProviderError("provider_invalid_reference_image", retryable=False)
+    except ImageProviderError:
+        raise
+    except (UnidentifiedImageError, OSError) as exc:
+        raise ImageProviderError("provider_invalid_reference_image", retryable=False) from exc
+
+
 def _decode_cloudflare_response(response: httpx.Response) -> GeneratedImagePayload:
     try:
         response_data = response.json()
@@ -185,7 +232,7 @@ def _decode_cloudflare_response(response: httpx.Response) -> GeneratedImagePaylo
     image_base64 = result.get("image") if isinstance(result, dict) else None
     if not isinstance(image_base64, str) or not image_base64:
         raise ImageProviderError("provider_malformed_response", retryable=False)
-    return GeneratedImagePayload(image_base64=image_base64)
+    return GeneratedImagePayload(image_base64=_strip_data_uri_prefix(image_base64))
 
 
 def _map_cloudflare_error(
@@ -218,6 +265,15 @@ def _cloudflare_error_text(response_data: dict[object, object]) -> str:
         return ""
     messages = [error.get("message", "") for error in errors if isinstance(error, dict)]
     return " ".join(message for message in messages if isinstance(message, str))
+
+
+def _strip_data_uri_prefix(image_base64: str) -> str:
+    if image_base64.startswith("data:image/"):
+        _, separator, encoded_image = image_base64.partition(",")
+        if separator != "," or not encoded_image:
+            raise ImageProviderError("provider_malformed_response", retryable=False)
+        return encoded_image
+    return image_base64
 
 
 def _extract_openai_base64(response: object) -> str:
